@@ -1,0 +1,227 @@
+
+# SMART LENDER - LOAN PREDICTION SYSTEM
+# Complete ML + Flask Application
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import joblib
+from flask import Flask, render_template, request
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder, StandardScaler
+from sklearn.metrics import accuracy_score, classification_report
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from xgboost import XGBClassifier
+print("Loading Dataset...")
+data = pd.read_csv("dataset/loan_data.csv")
+print(data.head())
+print(data.info())
+print(data.describe())
+plt.figure(figsize=(6,4))
+sns.countplot(
+    x="Loan_Status",
+    data=data
+)
+plt.title("Loan Approval Distribution")
+plt.show()
+plt.figure(figsize=(10,8))
+sns.heatmap(
+    data.corr(numeric_only=True),
+    annot=True,
+    cmap="coolwarm"
+)
+plt.title("Feature Correlation")
+plt.show()
+
+# Handle Missing Values
+
+for col in data.columns:
+
+    if data[col].dtype == "object":
+
+        data[col].fillna(
+            data[col].mode()[0],
+            inplace=True
+        )
+
+    else:
+
+        data[col].fillna(
+            data[col].median(),
+            inplace=True
+        )
+
+
+# Remove duplicates
+
+data.drop_duplicates(
+    inplace=True
+)
+
+
+
+# Encoding categorical values
+
+encoder = LabelEncoder()
+
+for col in data.select_dtypes(include="object"):
+
+    data[col] = encoder.fit_transform(
+        data[col]
+    )
+
+
+# Split Features and Target
+
+X = data.drop(
+    "Loan_Status",
+    axis=1
+)
+
+y = data["Loan_Status"]
+
+
+
+# Train Test Split
+
+X_train, X_test, y_train, y_test = train_test_split(
+
+    X,
+    y,
+    test_size=0.2,
+    random_state=42
+)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(
+    X_train
+)
+X_test = scaler.transform(
+    X_test
+)
+
+# ================================
+# 4. MODEL BUILDING
+# ================================
+models = {
+    "Decision Tree":
+    DecisionTreeClassifier(),
+    "Random Forest":
+    RandomForestClassifier(),
+    "KNN":
+    KNeighborsClassifier(),
+    "XGBoost":
+    XGBClassifier()
+}
+results = {}
+for name, model in models.items():
+    print("\nTraining", name)
+    model.fit(
+        X_train,
+        y_train
+    )
+    prediction = model.predict(
+        X_test
+    )
+    accuracy = accuracy_score(
+        y_test,
+        prediction
+    )
+    results[name] = accuracy
+    print(
+        name,
+        "Accuracy:",
+        accuracy
+    )
+
+# ================================
+# 5. SELECT BEST MODEL
+# ================================
+
+best_model_name = max(
+    results,
+    key=results.get
+)
+best_model = models[
+    best_model_name
+]
+print(
+    "\nBest Model:",
+    best_model_name
+)
+joblib.dump(
+    best_model,
+    "model/loan_model.pkl"
+)
+joblib.dump(
+    scaler,
+    "model/scaler.pkl"
+)
+print(
+    "Model Saved Successfully"
+)
+
+# ================================
+# 6. FLASK APPLICATION
+# ================================
+
+app = Flask(__name__)
+model = joblib.load(
+    "model/loan_model.pkl"
+)
+scaler = joblib.load(
+    "model/scaler.pkl"
+)
+@app.route("/")
+def home():
+    return render_template(
+        "index.html"
+    )
+
+@app.route(
+    "/predict",
+    methods=["POST"]
+)
+
+def predict():
+    try:
+        input_data = [
+
+            float(request.form["income"]),
+
+            float(request.form["co_income"]),
+
+            float(request.form["loan_amount"]),
+
+            float(request.form["loan_term"]),
+
+            int(request.form["credit_history"])
+
+        ]
+        input_data = np.array(
+            [input_data]
+        )
+        input_data = scaler.transform(
+            input_data
+        )
+        result = model.predict(
+            input_data
+        )
+        if result[0] == 1:
+            output = "Loan Approved"
+        else:
+            output = "Loan Rejected"
+        return render_template(
+            "result.html",
+            prediction=output
+
+        )
+    except Exception as e:
+        return str(e)
+if __name__ == "__main__":
+
+    app.run(
+        debug=True
+    )
