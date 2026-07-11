@@ -1,0 +1,65 @@
+-- USER Table
+CREATE TABLE USER (
+    user_id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    role VARCHAR(50),
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- APPLICANT_PROFILE Table
+CREATE TABLE APPLICANT_PROFILE (
+    applicant_id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    gender VARCHAR(10),
+    married VARCHAR(10),
+    education VARCHAR(50),
+    self_employed VARCHAR(10),
+    dependents INT,
+    property_area VARCHAR(50),
+    FOREIGN KEY (user_id) REFERENCES USER(user_id)
+);
+
+-- CREDIT_HISTORY Table
+CREATE TABLE CREDIT_HISTORY (
+    credit_id INT PRIMARY KEY AUTO_INCREMENT,
+    applicant_id INT NOT NULL,
+    credit_score FLOAT,
+    credit_history_status INT,
+    FOREIGN KEY (applicant_id) REFERENCES APPLICANT_PROFILE(applicant_id)
+);
+
+-- LOAN_APPLICATION Table
+CREATE TABLE LOAN_APPLICATION (
+    loan_id INT PRIMARY KEY AUTO_INCREMENT,
+    applicant_id INT NOT NULL,
+    income FLOAT,
+    coapplicant_income FLOAT,
+    loan_amount FLOAT,
+    loan_term INT,
+    application_date DATETIME,
+    FOREIGN KEY (applicant_id) REFERENCES APPLICANT_PROFILE(applicant_id)
+);
+
+-- MODEL Table
+CREATE TABLE MODEL (
+    model_id INT PRIMARY KEY AUTO_INCREMENT,
+    model_name VARCHAR(100),
+    model_nm VARCHAR(100),
+    algorithm VARCHAR(100),
+    training_accuracy FLOAT,
+    testing_accuracy FLOAT,
+    file_path VARCHAR(255)
+);
+
+-- PREDICTION_RESULT Table
+CREATE TABLE PREDICTION_RESULT (
+    prediction_id INT PRIMARY KEY AUTO_INCREMENT,
+    loan_id INT NOT NULL,
+    model_id INT NOT NULL,
+    prediction_status VARCHAR(20),
+    probability_score FLOAT,
+    prediction_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (loan_id) REFERENCES LOAN_APPLICATION(loan_id),
+    FOREIGN KEY (model_id) REFERENCES MODEL(model_id)
+);
