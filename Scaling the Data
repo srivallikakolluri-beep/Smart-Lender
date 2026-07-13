@@ -1,0 +1,30 @@
+Topic : Scaling the Data
+
+
+# Import libraries
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
+
+# Load dataset
+df = pd.read_csv("loan_data.csv")   # Replace with your dataset name
+
+# Separate features (X) and target (y)
+X = df.drop("Loan_Status", axis=1)
+y = df["Loan_Status"]
+
+# Initialize StandardScaler
+scaler = StandardScaler()
+
+# Scale only the input features
+X_scaled = scaler.fit_transform(X)
+
+# Convert the scaled array back to a DataFrame
+X_scaled = pd.DataFrame(X_scaled, columns=X.columns)
+
+# Display first 5 rows
+print("Scaled Features:")
+print(X_scaled.head())
+
+# Check shape
+print("\nShape of Scaled Data:")
+print(X_scaled.shape) 
