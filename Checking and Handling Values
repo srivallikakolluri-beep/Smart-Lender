@@ -1,0 +1,47 @@
+
+import pandas as pd
+from sklearn.preprocessing import LabelEncoder
+
+# Load dataset
+df = pd.read_csv("loan_data.csv")
+
+# Create LabelEncoder object
+le = LabelEncoder()
+
+# Encode categorical columns
+categorical_columns = [
+    "Gender",
+    "Married",
+    "Dependents",
+    "Education",
+    "Self_Employed",
+    "Property_Area",
+    "Loan_Status"
+]
+
+for column in categorical_columns:
+    df[column] = le.fit_transform(df[column].astype(str))
+
+# Check dataset information
+print("Shape of Dataset:")
+print(df.shape)
+
+print("\nDataset Information:")
+print(df.info())
+
+print("\nMissing Values:")
+print(df.isnull().sum())
+
+# Fill missing values in numerical columns with mean
+numerical_columns = df.select_dtypes(include=["int64", "float64"]).columns
+
+for column in numerical_columns:
+    df[column].fillna(df[column].mean(), inplace=True)
+
+# Fill missing values in categorical columns with mode
+for column in categorical_columns:
+    df[column].fillna(df[column].mode()[0], inplace=True)
+
+# Verify missing values after preprocessing
+print("\nMissing Values After Filling:")
+print(df.isnull().sum())
