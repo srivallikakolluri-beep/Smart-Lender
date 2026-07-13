@@ -1,0 +1,35 @@
+# Import libraries
+import pandas as pd
+from collections import Counter
+from imblearn.over_sampling import SMOTE
+
+# Load dataset
+df = pd.read_csv("loan_data.csv")   # Replace with your dataset name
+
+# Separate features (X) and target (y)
+X = df.drop("Loan_Status", axis=1)
+y = df["Loan_Status"]
+
+# Check class distribution before SMOTE
+print("Before SMOTE:")
+print(Counter(y))
+
+# Apply SMOTE
+smote = SMOTE(random_state=42)
+X_resampled, y_resampled = smote.fit_resample(X, y)
+
+# Check class distribution after SMOTE
+print("\nAfter SMOTE:")
+print(Counter(y_resampled))
+
+# Create a new balanced DataFrame
+balanced_df = pd.DataFrame(X_resampled, columns=X.columns)
+balanced_df["Loan_Status"] = y_resampled
+
+# Display first 5 rows
+print("\nBalanced Dataset:")
+print(balanced_df.head())
+
+# Check the shape of the balanced dataset
+print("\nShape of Balanced Dataset:")
+print(balanced_df.shape)
