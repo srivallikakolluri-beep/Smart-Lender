@@ -1,0 +1,63 @@
+# Import Libraries
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load Dataset
+data = pd.read_csv("loan_prediction.csv")   # Change the file name if required
+
+# -------------------------------
+# Univariate Analysis - Continuous Features
+# -------------------------------
+
+plt.figure(figsize=(12,5))
+
+# Applicant Income Distribution
+plt.subplot(1,2,1)
+sns.histplot(data['ApplicantIncome'], kde=True, color='red')
+plt.title("Applicant Income Distribution")
+
+# Credit History Distribution
+plt.subplot(1,2,2)
+sns.histplot(data['Credit_History'], kde=True)
+plt.title("Credit History Distribution")
+
+plt.tight_layout()
+plt.show()
+
+
+# -------------------------------
+# Univariate Analysis - Categorical Features
+# -------------------------------
+
+plt.figure(figsize=(12,5))
+
+# Gender Count Plot
+plt.subplot(1,2,1)
+sns.countplot(y='Gender', data=data)
+plt.title("Gender Distribution")
+
+# Education Count Plot
+plt.subplot(1,2,2)
+sns.countplot(y='Education', data=data)
+plt.title("Education Distribution")
+
+plt.tight_layout()
+plt.show()
+
+
+# -------------------------------
+# Numerical Summary
+# -------------------------------
+
+print("Applicant Income Summary")
+print(data['ApplicantIncome'].describe())
+
+print("\nCredit History Counts")
+print(data['Credit_History'].value_counts())
+
+print("\nGender Counts")
+print(data['Gender'].value_counts())
+
+print("\nEducation Counts")
+print(data['Education'].value_counts())
