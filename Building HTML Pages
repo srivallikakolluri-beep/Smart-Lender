@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Smart Lender</title>
+    <style>
+        body{
+            font-family: Arial;
+            text-align:center;
+            background:#f2f2f2;
+            padding-top:100px;
+        }
+
+        .btn{
+            background:#04AA6D;
+            color:white;
+            padding:15px 30px;
+            text-decoration:none;
+            border-radius:5px;
+            font-size:18px;
+        }
+    </style>
+</head>
+<body>
+<h1>Smart Lender - Loan Prediction</h1>
+<p>
+This application predicts whether a loan will be Approved or Rejected
+using Machine Learning.
+</p>
+<br>
+<a href="/predict" class="btn">Predict Loan</a>
+</body>
+</html>
+
+#predict.html
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Loan Prediction</title>
+<style>
+body{
+font-family:Arial;
+background:#f2f2f2;
+}
+.container{
+width:50%;
+margin:auto;
+background:white;
+padding:20px;
+margin-top:30px;
+}
+input,select{
+width:100%;
+padding:10px;
+margin:10px 0;
+}
+input[type=submit]{
+background:#04AA6D;
+color:white;
+border:none;
+cursor:pointer;
+}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Loan Prediction Form</h2>
+<form action="/submit" method="POST">
+<input type="number" name="Gender" placeholder="Gender (1=Male,0=Female)" required>
+<input type="number" name="Married" placeholder="Married (1=Yes,0=No)" required>
+<input type="number" name="Dependents" placeholder="Dependents" required>
+<input type="number" name="Education" placeholder="Education" required>
+<input type="number" name="Self_Employed" placeholder="Self Employed" required>
+<input type="number" name="ApplicantIncome" placeholder="Applicant Income" required>
+<input type="number" name="CoapplicantIncome" placeholder="Coapplicant Income" required>
+<input type="number" name="LoanAmount" placeholder="Loan Amount" required>
+<input type="number" name="Loan_Amount_Term" placeholder="Loan Amount Term" required>
+<input type="number" name="Credit_History" placeholder="Credit History" required>
+<input type="number" name="Property_Area" placeholder="Property Area" required>
+<input type="submit" value="Predict">
+</form>
+</div>
+</body>
+</html>
+
+#submit.html
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Prediction Result</title>
+<style>
+body{
+font-family:Arial;
+text-align:center;
+background:#f2f2f2;
+padding-top:100px;
+}
+.result{
+background:white;
+width:40%;
+margin:auto;
+padding:30px;
+border-radius:10px;
+}
+a{
+text-decoration:none;
+background:#04AA6D;
+color:white;
+padding:10px 20px;
+border-radius:5px;
+}
+</style>
+</head>
+<body>
+<div class="result">
+<h2>Loan Prediction Result</h2>
+<h1>{{ prediction_text }}</h1>
+<br>
+<a href="/predict">Predict Again</a>
+</div>
+</body>
+</html>
+
+#Flask Routing 
+
+from flask import Flask, render_template, request
+import pickle
+import numpy as np
+app = Flask(__name__)
+model = pickle.load(open("rdf.pkl", "rb"))
+scaler = pickle.load(open("scale1.pkl", "rb"))
+@app.route('/')
+def home():
+    return render_template('home.html')
+@app.route('/predict')
+def predict():
+    return render_template('predict.html')
+@app.route('/submit', methods=['POST'])
+def submit():
+    data = [float(x) for x in request.form.values()]
+    data = scaler.transform([data])
+    prediction = model.predict(data)
+    if prediction[0] == 1:
+        output = "Loan Approved"
+    else:
+        output = "Loan Rejected"
+    return render_template('submit.html', prediction_text=output)
+if __name__ == '__main__':
+    app.run(debug=True)
