@@ -1,0 +1,98 @@
+
+index.html
+result.html
+
+# static/
+style.css
+Backend Layer
+from flask import Flask, render_template, request
+import pickle
+import numpy as np
+
+app = Flask(_name_)
+
+model = pickle.load(open("rdf.pkl","rb"))
+scaler = pickle.load(open("scale1.pkl","rb"))
+
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/predict", methods=["POST"])
+def predict():
+
+    features = [
+        float(request.form['Gender']),
+        float(request.form['Married']),
+        float(request.form['Dependents']),
+        float(request.form['Education']),
+        float(request.form['Self_Employed']),
+        float(request.form['ApplicantIncome']),
+        float(request.form['CoapplicantIncome']),
+        float(request.form['LoanAmount']),
+        float(request.form['Loan_Amount_Term']),
+        float(request.form['Credit_History']),
+        float(request.form['Property_Area'])
+    ]
+
+    data = scaler.transform([features])
+
+    prediction = model.predict(data)
+
+    result = "Loan Approved" if prediction[0] == 1 else "Loan Rejected"
+
+    return render_template("result.html", prediction=result)
+
+if _name_ == "_main_":
+    app.run(debug=True)
+Layer 3: Machine Learning Layer
+import pickle
+
+model = pickle.load(open("rdf.pkl","rb"))
+scaler = pickle.load(open("scale1.pkl","rb"))
+
+sample = [[1,1,0,1,0,4583,1508,128,360,1,2]]
+sample = scaler.transform(sample)
+prediction = model.predict(sample)
+print(prediction)
+
+#------------------------------------
+#Defining the application architecture
+#------------------------------------
+
+Importing the libraries
+import pandas as pd
+import numpy as np
+import pickle
+
+import matplotlib.pyplot as plt
+plt.style.use('fivethirtyeight')
+%matplotlib inline
+
+import seaborn as sns
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+
+from sklearn.model_selection import train_test_split, RandomizedSearchCV
+from sklearn.preprocessing import StandardScaler
+
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    confusion_matrix,
+    f1_score
+)
+
+import imblearn
+
+
+Read the DataSet
+# Import the dataset from a CSV file
+import pandas as pd
+
+data = pd.read_csv('/content/loan_prediction.csv')
+
+# Display the dataset
+data
