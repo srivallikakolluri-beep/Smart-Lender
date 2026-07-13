@@ -1,0 +1,25 @@
+# Import Libraries
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Bivariate Analysis using Count Plots
+
+plt.figure(figsize=(20,5))
+
+# Married vs Gender
+plt.subplot(1,3,1)
+sns.countplot(x='Married', hue='Gender', data=data)
+plt.title("Married vs Gender")
+
+# Self_Employed vs Education
+plt.subplot(1,3,2)
+sns.countplot(x='Self_Employed', hue='Education', data=data)
+plt.title("Self Employed vs Education")
+
+# Property_Area vs Loan_Amount_Term
+plt.subplot(1,3,3)
+sns.countplot(x='Property_Area', hue='Loan_Amount_Term', data=data)
+plt.title("Property Area vs Loan Amount Term")
+
+plt.tight_layout()
+plt.show()
