@@ -1,0 +1,18 @@
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Load the dataset
+df = pd.read_csv("loan_data.csv")
+
+# Create the swarm plot
+plt.figure(figsize=(8, 5))
+sns.swarmplot(x="Gender", y="LoanAmount", data=df)
+
+# Add title and labels
+plt.title("Swarm Plot of Gender vs Loan Amount")
+plt.xlabel("Gender")
+plt.ylabel("Loan Amount")
+
+# Display the plot
+plt.show()
